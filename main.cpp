@@ -1,3 +1,7 @@
+/* ==============================================================================
+   PROGRAM : SISTEM PEMBAGIAN TAGIHAN & PENGELUARAN KOS (PROGRES 1)
+   ============================================================================== */
+
 #include <iostream>
 #include <string>
 
@@ -16,7 +20,53 @@ void tampilkanMenu() {
     cout << "Pilih menu (1-5): ";
 }
 
+
+
+const int MAX_PENGHUNI  = 100;
+const int MAX_TRANSAKSI = 500;
+
+string namaPenghuni[MAX_PENGHUNI];
+int    sudahDibayar[MAX_PENGHUNI];
+int    jumlahPenghuni = 0;
+
+string namaBarang[MAX_TRANSAKSI];
+int    mingguKe[MAX_TRANSAKSI];
+int    kategori[MAX_TRANSAKSI];
+int    idxPenalang[MAX_TRANSAKSI];
+int    nominal[MAX_TRANSAKSI];
+int    jumlahTransaksi = 0;
+
+void cetakGaris(int panjang, char simbol) {
+    for (int i = 0; i < panjang; i++) {
+        cout << simbol;
+    }
+    cout << "\n";
+}
+
+void cetakJudul(string judul) {
+    cout << "\n";
+    cetakGaris(65, '=');
+    cout << "  " << judul << "\n";
+    cetakGaris(65, '=');
+}
+
+
+string namaKategori(int kode) {
+    if (kode == 1) {
+        return "Kebutuhan Wajib";
+    } else if (kode == 2) {
+        return "Konsumsi Bersama";
+    } else if (kode == 3) {
+        return "Darurat / Lainnya";
+    }
+    return "Tidak Diketahui";
+}
+
 int main() {
+    cetakJudul("SISTEM PEMBAGIAN TAGIHAN & PENGELUARAN ANAK KOS (C++)");
+    cout << "  [Progres 1] Kerangka dasar array dan tampilan siap.\n";
+
+
     int stateMenu;
     tampilkanMenu();
     cin >> stateMenu;
