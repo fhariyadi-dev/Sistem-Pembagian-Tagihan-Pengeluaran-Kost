@@ -21,6 +21,67 @@ void tampilkanMenu() {
 }
 
 
+// Progres Kedua //
+
+
+int bacaPilihan(string pesan, int batasBawah, int batasAtas) {
+    int angka;
+    cout << pesan;
+    cin >> angka;
+
+    while (angka < batasBawah || angka > batasAtas) {
+        cout << "  [!] Input harus antara " << batasBawah
+             << " sampai " << batasAtas << ". Ulangi: ";
+        cin >> angka;
+    }
+    return angka;
+}
+
+int bacaNominal(string pesan, int minimal) {
+    int nilai;
+    cout << pesan;
+    cin >> nilai;
+
+    while (nilai < minimal) {
+        cout << "  [!] Nilai minimal adalah " << minimal << ". Ulangi: ";
+        cin >> nilai;
+    }
+    return nilai;
+}
+
+int hitungTalanganPenghuni(int idx) {
+    int totalTalangan = 0;
+    for (int i = 0; i < jumlahTransaksi; i++) {
+        if (idxPenalang[i] == idx) {
+            totalTalangan = totalTalangan + nominal[i];
+        }
+    }
+    return totalTalangan;
+}
+
+void tampilkanDaftarPenghuni() {
+    cetakJudul("DAFTAR PENGHUNI KOS");
+    for (int i = 0; i < jumlahPenghuni; i++) {
+        cout << "  " << (i + 1) << ". " << namaPenghuni[i]
+             << " (Total Talangan: Rp " << hitungTalanganPenghuni(i) << ")\n";
+    }
+    cetakGaris(65, '-');
+}
+
+void inisialisasiPenghuni() {
+    cetakJudul("INISIALISASI DATA PENGHUNI KOS BARU");
+    jumlahPenghuni = bacaPilihan("Masukkan jumlah penghuni kos: ", 1, MAX_PENGHUNI);
+    jumlahTransaksi = 0;
+
+    cout << "\nMasukkan nama masing-masing penghuni:\n";
+    for (int i = 0; i < jumlahPenghuni; i++) {
+        cout << "  Penghuni ke-" << (i + 1) << " : ";
+        getline(cin >> ws, namaPenghuni[i]);
+        sudahDibayar[i] = 0;
+    }
+    cout << "\n[v] Data " << jumlahPenghuni << " penghuni berhasil disimpan.\n";
+}
+
 
 const int MAX_PENGHUNI  = 100;
 const int MAX_TRANSAKSI = 500;
