@@ -131,6 +131,7 @@ int bacaNominal(string pesan, int minimal) {
     return nilai;
 }
 
+
 // Kalkulasi
 int hitungTalanganPenghuni(int idx) {
     int totalTalangan = 0;
@@ -140,6 +141,46 @@ int hitungTalanganPenghuni(int idx) {
         }
     }
     return totalTalangan;
+}
+int hitungTotalPengeluaran() {
+    int total = 0;
+    for (int i = 0; i < jumlahTransaksi; i++) {
+        total = total + nominal[i];
+    }
+    return total;
+}
+
+int hitungTagihanRataRata() {
+    if (jumlahPenghuni == 0) {
+        return 0;
+    }
+    return hitungTotalPengeluaran() / jumlahPenghuni;
+}
+
+int hitungTagihanBersih(int idx) {
+    return hitungTalanganPenghuni(idx) - hitungTagihanRataRata();
+}
+
+int hitungSisaTagihan(int idx) {
+    int tagihanBersih = hitungTagihanBersih(idx);
+    if (tagihanBersih <= 0) {
+        return 0;
+    }
+    int sisa = tagihanBersih - sudahDibayar[idx];
+    if (sisa < 0) {
+        return 0;
+    }
+    return sisa;
+}
+
+string statusKelunasan(int idx) {
+    int tagihanBersih = hitungTagihanBersih(idx);
+    if (tagihanBersih < 0) {
+        return "LUNAS (BERHAK REFUND)";
+    } else if (tagihanBersih == 0 || hitungSisaTagihan(idx) == 0) {
+        return "LUNAS";
+    }
+    return "BELUM LUNAS";
 }
 
 // Tampilan data penghuni
@@ -160,7 +201,6 @@ void inisialisasiPenghuni() {
     cout << "\nMasukkan nama masing-masing penghuni:\n";
     for (int i = 0; i < jumlahPenghuni; i++) {
         cout << "  Penghuni ke-" << (i + 1) << " : ";
-        // FIX BUG TAHAP 2: Menambahkan cin >> ws agar input penghuni ke-1 tidak ter-skip
         getline(cin >> ws, namaPenghuni[i]);
         sudahDibayar[i] = 0;
     }
@@ -203,12 +243,91 @@ void tambahPengeluaran() {
         cout << "    " << (i + 1) << ". " << namaPenghuni[i] << "\n";
     }
     int pilihOrang = bacaPilihan("  Nomor Penalang Dana     : ", 1, jumlahPenghuni);
+    idxPenalang[jumlahTransaksi] = pilihOrang - 1;
 
-    // BUG TAHAP 3: Lupa mengurangi 1 (pilihOrang - 1) dan lupa menambah jumlahTransaksi++
-    idxPenalang[jumlahTransaksi] = pilihOrang;
     nominal[jumlahTransaksi] = bacaNominal("  Nominal Biaya (Rp)      : Rp ", 1);
 
+    jumlahTransaksi++;
     cout << "\n[v] Transaksi pengeluaran berhasil ditambahkan!\n";
+}
+
+void lihatSemuaPengeluaran() {
+    cetakJudul("DAFTAR SELURUH PENGELUARAN KOS");
+
+    if (jumlahTransaksi == 0) {
+        cout << "  [i] Belum ada data transaksi pengeluaran.\n";
+        return;
+    }
+
+    for (int i = 0; i < jumlahTransaksi; i++) {
+        cout << "  " << (i + 1) << ". " << namaBarang[i]
+             << " (Minggu " << mingguKe[i] << ")\n";
+        cout << "     Kategori : " << namaKategori(kategori[i])
+             << " | Penalang : " << namaPenghuni[idxPenalang[i]]
+             << " | Nominal : Rp " << nominal[i] << "\n";
+        cetakGaris(65, '-');
+    }
+    cout << "  TOTAL KESELURUHAN (" << jumlahTransaksi << " Transaksi) : Rp "
+         << hitungTotalPengeluaran() << "\n";
+    cetakGaris(65, '=');
+}
+
+void tampilkanLaporanSplitBill() {
+    cetakJudul("CEK TAGIHAN & STATUS BAYAR PENGHUNI");
+
+    int total    = hitungTotalPengeluaran();
+    int rataRata = hitungTagihanRataRata();
+
+    cout << "  Jumlah Penghuni Kos      : " << jumlahPenghuni << " orang\n";
+    cout << "  Total Pengeluaran Kos    : Rp " << total << "\n";
+    cout << "  Beban Rata-Rata / Orang  : Rp " << rataRata << "\n";
+    cetakGaris(65, '-');
+
+    for (int i = 0; i < jumlahPenghuni; i++) {
+        int talangan      = hitungTalanganPenghuni(i);
+        int tagihanBersih = hitungTagihanBersih(i);
+        int sisa          = hitungSisaTagihan(i);
+
+        cout << "  " << (i + 1) << ". " << namaPenghuni[i] << "\n";
+        cout << "     - Beban Rata-Rata : Rp " << rataRata << "\n";
+        cout << "     - Uang Talangan   : Rp " << talangan << "\n";
+
+        if (tagihanBersih < 0) {
+            cout << "     - Hak Refund      : Rp " << (-tagihanBersih) << "\n";
+        } else {
+            cout << "     - Tagihan Bersih  : Rp " << tagihanBersih << "\n";
+            cout << "     - Sudah Dibayar   : Rp " << sudahDibayar[i] << "\n";
+            cout << "     - Sisa Tagihan    : Rp " << sisa << "\n";
+        }
+        cout << "     - Status Akhir    : " << statusKelunasan(i) << "\n";
+        cetakGaris(65, '-');
+    }
+}
+
+void prosesPembayaranTagihan() {
+    tampilkanLaporanSplitBill();
+    if (jumlahTransaksi == 0) {
+        return;
+    }
+
+    int pilih = bacaPilihan("\nPilih nomor penghuni yang ingin membayar (0 = Batal): ", 0, jumlahPenghuni);
+    if (pilih == 0) {
+        return;
+    }
+
+    int idx  = pilih - 1;
+    int sisa = hitungSisaTagihan(idx);
+
+    if (sisa <= 0) {
+        cout << "  [i] " << namaPenghuni[idx] << " sudah LUNAS.\n";
+        return;
+    }
+
+    cout << "  Sisa tagihan " << namaPenghuni[idx] << " saat ini: Rp " << sisa << "\n";
+    int bayar = bacaPilihan("  Masukkan nominal pembayaran (Rp): ", 1, sisa);
+
+    sudahDibayar[idx] = bayar;
+    cout << "\n[v] Pembayaran Rp " << bayar << " berhasil dicatat!\n";
 }
 
 int main() {
@@ -220,19 +339,19 @@ int main() {
     do {
         tampilkanMenu();
         cin >> stateMenu;
-        stateMenu = bacaPilihan("Pilih menu (1-5): ", 1, 5);
+        stateMenu = bacaPilihan("Pilih menu (1-10): ", 1, 10);
         
         if (stateMenu == 1) {
             cout << "Item yang terpilih adalah `Tambah Data Pengeluaran Kos`\n";
         }
         else if (stateMenu == 2) {
-            cout << "Item yang terpilih adalah `Lihat Daftar & Total Pengeluaran`\n";
+            lihatSemuaPengeluaran();
         }
         else if (stateMenu == 3) {
-            cout << "Item yang terpilih adalah `Cek Tagihan & Status Bayar Penghuni`\n";
+            tampilkanLaporanSplitBill();
         }
         else if (stateMenu == 4) {
-            cout << "Item yang terpilih adalah `Update Status Pembayaran Penghuni`\n";
+            prosesPembayaranTagihan();
         }
         else if(stateMenu == 5) {
             cout << "Keluar Program...\n";
