@@ -251,6 +251,65 @@ void inisialisasiPenghuni() {
     cout << "\n[v] Data " << jumlahPenghuni << " penghuni berhasil disimpan.\n";
 }
 
+void cariNamaBarang() {
+    cetakJudul("CARI PENGELUARAN BERDASARKAN NAMA BARANG");
+    if (jumlahTransaksi == 0) return;
+
+    string kataKunci;
+    cout << "  Masukkan kata kunci nama barang: ";
+    cin >> kataKunci; 
+
+    int ditemukan = 0;
+    int subtotal  = 0;
+    cout << "\n--- Hasil Pencarian \"" << kataKunci << "\" ---\n";
+
+    for (int i = 0; i < jumlahTransaksi; i++) {
+        if (namaBarang[i].find(kataKunci) != string::npos) {
+            cout << "  - [Minggu " << mingguKe[i] << "] " << namaBarang[i]
+                 << " | Rp " << nominal[i] << "\n";
+            ditemukan++;
+            subtotal += nominal[i];
+        }
+    }
+    if (ditemukan == 0) cout << "  [i] Tidak ditemukan.\n";
+    else cout << "  Ditemukan " << ditemukan << " transaksi | Subtotal: Rp " << subtotal << "\n";
+}
+
+void filterBerdasarkanKategori() {
+    cetakJudul("FILTER PENGELUARAN BERDASARKAN KATEGORI");
+    if (jumlahTransaksi == 0) return;
+
+    cout << "  1. Kebutuhan Wajib\n  2. Konsumsi Bersama\n  3. Darurat / Lainnya\n";
+    int kodeKat = bacaPilihan("  Pilih Kategori (1-3): ", 1, 3);
+
+    cout << "\n--- Daftar Kategori: " << namaKategori(kodeKat) << " ---\n";
+    int ditemukan = 0;
+    for (int i = 0; i < jumlahTransaksi; i++) {
+        if (kategori[i] == kodeKat) {
+            cout << "  - " << namaBarang[i] << " | Rp " << nominal[i] << "\n";
+            ditemukan++;
+        }
+    }
+    if (ditemukan == 0) cout << "  [i] Tidak ada transaksi.\n";
+}
+
+void filterBerdasarkanPenalang() {
+    cetakJudul("FILTER PENGELUARAN BERDASARKAN PENALANG DANA");
+    if (jumlahTransaksi == 0) return;
+
+    for (int i = 0; i < jumlahPenghuni; i++) cout << "  " << (i + 1) << ". " << namaPenghuni[i] << "\n";
+    int pilihOrang = bacaPilihan("  Pilih Nomor Penghuni: ", 1, jumlahPenghuni);
+    int idxOrang   = pilihOrang - 1;
+
+    cout << "\n--- Riwayat Talangan: " << namaPenghuni[idxOrang] << " ---\n";
+    for (int i = 0; i < jumlahTransaksi; i++) {
+        if (idxPenalang[i] == idxOrang) {
+            cout << "  - " << namaBarang[i] << " | Rp " << nominal[i] << "\n";
+        }
+    }
+}
+
+
 // Utilitas kategori
 string namaKategori(int kode) {
     if (kode == 1) {
