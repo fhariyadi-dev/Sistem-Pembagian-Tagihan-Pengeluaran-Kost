@@ -105,6 +105,50 @@ void tampilkanMenu() {
     cout << "  0. Keluar Program\n";
 }
 
+void editPengeluaran() {
+    lihatSemuaPengeluaran();
+    if (jumlahTransaksi == 0) return;
+
+    int pilih = bacaPilihan("\nMasukkan nomor transaksi yang akan diedit (0 = Batal): ", 0, jumlahTransaksi);
+    if (pilih == 0) return;
+
+    int idx = pilih - 1;
+    cout << "\n--- Masukkan Data Baru untuk Transaksi #" << pilih << " ---\n";
+    cout << "  Nama Barang Baru (" << namaBarang[idx] << ") : ";
+    getline(cin >> ws, namaBarang[idx]);
+
+    mingguKe[idx] = bacaPilihan("  Minggu Baru (1-52)       : ", 1, 52);
+    kategori[idx] = bacaPilihan("  Kategori Baru (1-3)      : ", 1, 3);
+
+    for (int i = 0; i < jumlahPenghuni; i++) {
+        cout << "    " << (i + 1) << ". " << namaPenghuni[i] << "\n";
+    }
+    int pilihOrang = bacaPilihan("  Nomor Penalang Baru      : ", 1, jumlahPenghuni);
+    idxPenalang[idx] = pilihOrang - 1;
+
+    nominal[idx] = bacaNominal("  Nominal Biaya Baru (Rp)  : Rp ", 1);
+    cout << "\n[v] Data transaksi berhasil diperbarui!\n";
+}
+
+void hapusPengeluaran() {
+    lihatSemuaPengeluaran();
+    if (jumlahTransaksi == 0) return;
+
+    int pilih = bacaPilihan("\nMasukkan nomor transaksi yang akan dihapus (0 = Batal): ", 0, jumlahTransaksi);
+    if (pilih == 0) return;
+
+    int idx = pilih - 1;
+    for (int i = idx; i < jumlahTransaksi; i++) {
+        namaBarang[i]  = namaBarang[i + 1];
+        mingguKe[i]    = mingguKe[i + 1];
+        kategori[i]    = kategori[i + 1];
+        idxPenalang[i] = idxPenalang[i + 1];
+        nominal[i]     = nominal[i + 1];
+    }
+    jumlahTransaksi--;
+    cout << "\n[v] Transaksi berhasil dihapus!\n";
+}
+
 // Input
 int bacaPilihan(string pesan, int batasBawah, int batasAtas) {
     int angka;
