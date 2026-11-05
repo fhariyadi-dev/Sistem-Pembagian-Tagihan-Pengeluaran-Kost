@@ -158,7 +158,7 @@ int hitungTagihanRataRata() {
 }
 
 int hitungTagihanBersih(int idx) {
-    return hitungTalanganPenghuni(idx) - hitungTagihanRataRata();
+    return hitungTagihanRataRata() - hitungTalanganPenghuni(idx);
 }
 
 int hitungSisaTagihan(int idx) {
@@ -326,9 +326,33 @@ void prosesPembayaranTagihan() {
     cout << "  Sisa tagihan " << namaPenghuni[idx] << " saat ini: Rp " << sisa << "\n";
     int bayar = bacaPilihan("  Masukkan nominal pembayaran (Rp): ", 1, sisa);
 
-    sudahDibayar[idx] = bayar;
+    sudahDibayar[idx] = sudahDibayar[idx] + bayar; // Pakai += biar akumulatif
     cout << "\n[v] Pembayaran Rp " << bayar << " berhasil dicatat!\n";
 }
+
+void simpanLaporanKeTxt() {
+    ofstream fileKeluar(NAMA_FILE.c_str());
+    if (!fileKeluar.is_open()) {
+        cout << "  [!] Gagal menyimpan otomatis ke file " << NAMA_FILE << "!\n";
+        return;
+    }
+
+    int total    = hitungTotalPengeluaran();
+    int rataRata = hitungTagihanRataRata();
+
+    fileKeluar << "===DATA_SISTEM===\n";
+    fileKeluar << jumlahPenghuni << "\n";
+    for (int i = 0; i < jumlahPenghuni; i++) {
+        fileKeluar << namaPenghuni[i] << "\n";
+        fileKeluar << sudahDibayar[i] << "\n";
+    }
+    fileKeluar << jumlahTransaksi << "\n";
+    for (int i = 0; i < jumlahTransaksi; i++) {
+        fileKeluar << namaBarang[i] << "\n";
+        fileKeluar << mingguKe[i] << " " << kategori[i] << " " << idxPenalang[i] << " " << nominal[i] << "\n";
+    }
+}
+
 
 int main() {
 
