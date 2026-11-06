@@ -138,7 +138,7 @@ void hapusPengeluaran() {
     if (pilih == 0) return;
 
     int idx = pilih - 1;
-    for (int i = idx; i < jumlahTransaksi; i++) {
+    for (int i = idx; i < jumlahTransaksi - 1; i++) {
         namaBarang[i]  = namaBarang[i + 1];
         mingguKe[i]    = mingguKe[i + 1];
         kategori[i]    = kategori[i + 1];
@@ -257,7 +257,7 @@ void cariNamaBarang() {
 
     string kataKunci;
     cout << "  Masukkan kata kunci nama barang: ";
-    cin >> kataKunci; 
+    getline(cin >> ws, kataKunci);
 
     int ditemukan = 0;
     int subtotal  = 0;
