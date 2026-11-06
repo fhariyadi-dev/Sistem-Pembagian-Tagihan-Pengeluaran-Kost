@@ -24,6 +24,12 @@ int    idxPenalang[MAX_TRANSAKSI];
 int    nominal[MAX_TRANSAKSI];
 int    jumlahTransaksi = 0;
 
+void lihatSemuaPengeluaran();
+void simpanLaporanKeTxt();
+int bacaPilihan(string pesan, int batasBawah, int batasAtas);
+int bacaNominal(string pesan, int minimal);
+string namaKategori(int kode);
+
 // Utilitas tampilan
 void cetakGaris(int panjang, char simbol) {
     for (int i = 0; i < panjang; i++) {
@@ -128,6 +134,7 @@ void editPengeluaran() {
 
     nominal[idx] = bacaNominal("  Nominal Biaya Baru (Rp)  : Rp ", 1);
     cout << "\n[v] Data transaksi berhasil diperbarui!\n";
+    simpanLaporanKeTxt();
 }
 
 void hapusPengeluaran() {
@@ -147,6 +154,7 @@ void hapusPengeluaran() {
     }
     jumlahTransaksi--;
     cout << "\n[v] Transaksi berhasil dihapus!\n";
+    simpanLaporanKeTxt();
 }
 
 // Input
@@ -192,6 +200,26 @@ int hitungTotalPengeluaran() {
         total = total + nominal[i];
     }
     return total;
+}
+
+int hitungTotalPerKategori(int kodeKat) {
+    int subtotal = 0;
+    for (int i = 0; i < jumlahTransaksi; i++) {
+        if (kategori[i] == kodeKat) {
+            subtotal = subtotal + nominal[i];
+        }
+    }
+    return subtotal;
+}
+
+int hitungItemPerKategori(int kodeKat) {
+    int banyak = 0;
+    for (int i = 0; i < jumlahTransaksi; i++) {
+        if (kategori[i] == kodeKat) {
+            banyak = banyak + 1;
+        }
+    }
+    return banyak;
 }
 
 int hitungTagihanRataRata() {
@@ -249,6 +277,7 @@ void inisialisasiPenghuni() {
         sudahDibayar[i] = 0;
     }
     cout << "\n[v] Data " << jumlahPenghuni << " penghuni berhasil disimpan.\n";
+    simpanLaporanKeTxt();
 }
 
 void cariNamaBarang() {
@@ -352,6 +381,7 @@ void tambahPengeluaran() {
 
     jumlahTransaksi++;
     cout << "\n[v] Transaksi pengeluaran berhasil ditambahkan!\n";
+    simpanLaporanKeTxt();
 }
 
 void lihatSemuaPengeluaran() {
@@ -431,6 +461,7 @@ void prosesPembayaranTagihan() {
 
     sudahDibayar[idx] = sudahDibayar[idx] + bayar;
     cout << "\n[v] Pembayaran Rp " << bayar << " berhasil dicatat!\n";
+    simpanLaporanKeTxt();
 }
 
 void simpanLaporanKeTxt() {
@@ -443,7 +474,62 @@ void simpanLaporanKeTxt() {
     int total    = hitungTotalPengeluaran();
     int rataRata = hitungTagihanRataRata();
 
-    fileKeluar << "===DATA_SISTEM===\n";
+    fileKeluar << "=================================================================\n";
+    fileKeluar << "          LAPORAN AKHIR PEMBAGIAN TAGIHAN & PENGELUARAN KOS      \n";
+    fileKeluar << "=================================================================\n";
+    fileKeluar << "Jumlah Penghuni Kos     : " << jumlahPenghuni << " orang\n";
+    fileKeluar << "Jumlah Transaksi        : " << jumlahTransaksi << " transaksi\n";
+    fileKeluar << "Total Pengeluaran Kos   : Rp " << total << "\n";
+    fileKeluar << "Tagihan Rata-Rata/Orang : Rp " << rataRata << "\n";
+    fileKeluar << "-----------------------------------------------------------------\n\n";
+
+    fileKeluar << "1. REKAPITULASI PENGELUARAN PER KATEGORI\n";
+    fileKeluar << "-----------------------------------------------------------------\n";
+    for (int k = 1; k <= 3; k++) {
+        fileKeluar << "   - " << namaKategori(k)
+                   << " (" << hitungItemPerKategori(k) << " transaksi) : Rp "
+                   << hitungTotalPerKategori(k) << "\n";
+    }
+    fileKeluar << "\n";
+
+    fileKeluar << "2. DAFTAR RINCIAN TRANSAKSI PENGELUARAN\n";
+    fileKeluar << "-----------------------------------------------------------------\n";
+    if (jumlahTransaksi == 0) {
+        fileKeluar << "   (Belum ada transaksi pengeluaran)\n";
+    } else {
+        for (int i = 0; i < jumlahTransaksi; i++) {
+            fileKeluar << "   " << (i + 1) << ". " << namaBarang[i]
+                       << " | Minggu " << mingguKe[i]
+                       << " | " << namaKategori(kategori[i])
+                       << " | Penalang: " << namaPenghuni[idxPenalang[i]]
+                       << " | Rp " << nominal[i] << "\n";
+        }
+    }
+    fileKeluar << "\n";
+
+    fileKeluar << "3. RINCIAN SPLIT BILL & STATUS PEMBAYARAN PENGHUNI\n";
+    fileKeluar << "-----------------------------------------------------------------\n";
+    for (int i = 0; i < jumlahPenghuni; i++) {
+        int talangan      = hitungTalanganPenghuni(i);
+        int tagihanBersih = hitungTagihanBersih(i);
+        int sisa          = hitungSisaTagihan(i);
+
+        fileKeluar << "   " << (i + 1) << ". Nama Penghuni  : " << namaPenghuni[i] << "\n";
+        fileKeluar << "      Beban Rata-Rata: Rp " << rataRata << "\n";
+        fileKeluar << "      Total Talangan : Rp " << talangan << "\n";
+
+        if (tagihanBersih < 0) {
+            fileKeluar << "      Hak Refund     : Rp " << (-tagihanBersih) << "\n";
+        } else {
+            fileKeluar << "      Tagihan Bersih : Rp " << tagihanBersih << "\n";
+            fileKeluar << "      Sudah Dibayar  : Rp " << sudahDibayar[i] << "\n";
+            fileKeluar << "      Sisa Tagihan   : Rp " << sisa << "\n";
+        }
+        fileKeluar << "      Status Akhir   : " << statusKelunasan(i) << "\n";
+        fileKeluar << "-----------------------------------------------------------------\n";
+    }
+
+    fileKeluar << "\n===DATA_SISTEM===\n";
     fileKeluar << jumlahPenghuni << "\n";
     for (int i = 0; i < jumlahPenghuni; i++) {
         fileKeluar << namaPenghuni[i] << "\n";
@@ -454,6 +540,9 @@ void simpanLaporanKeTxt() {
         fileKeluar << namaBarang[i] << "\n";
         fileKeluar << mingguKe[i] << " " << kategori[i] << " " << idxPenalang[i] << " " << nominal[i] << "\n";
     }
+
+    fileKeluar.close();
+    cout << " Perubahan otomatis tersimpan ke \"" << NAMA_FILE << "\".\n";
 }
 
 void resetDataKosBaru() {
@@ -502,6 +591,7 @@ int main() {
         } else if (stateMenu == 10) {
             resetDataKosBaru();
         } else if (stateMenu == 0) {
+            simpanLaporanKeTxt();
             cout << "Keluar Program...\n";
         }
     } while (stateMenu != 0);
