@@ -429,7 +429,7 @@ void prosesPembayaranTagihan() {
     cout << "  Sisa tagihan " << namaPenghuni[idx] << " saat ini: Rp " << sisa << "\n";
     int bayar = bacaPilihan("  Masukkan nominal pembayaran (Rp): ", 1, sisa);
 
-    sudahDibayar[idx] = sudahDibayar[idx] + bayar; // Pakai += biar akumulatif
+    sudahDibayar[idx] = sudahDibayar[idx] + bayar;
     cout << "\n[v] Pembayaran Rp " << bayar << " berhasil dicatat!\n";
 }
 
@@ -456,40 +456,59 @@ void simpanLaporanKeTxt() {
     }
 }
 
+void resetDataKosBaru() {
+    cetakJudul("RESET DATA & MULAI KOS BARU");
+    int yakin = bacaPilihan("  Apakah Anda yakin ingin mereset data? (1 = Ya, 0 = Batal): ", 0, 1);
+    if (yakin == 1) {
+        inisialisasiPenghuni();
+    } else {
+        cout << "  [i] Reset data dibatalkan.\n";
+    }
+}
 
 int main() {
-
-    cetakJudul("SISTEM PEMBAGIAN TAGIHAN & PENGELUARAN ANAK KOS (C++)\n (Fitur Auto-Save & Auto-Load File .TXT)");
-    inisialisasiPenghuni();
+    cetakJudul("SISTEM PEMBAGIAN TAGIHAN & PENGELUARAN ANAK KOS (C++)");
+    
+    if (!muatDataDariTxt()) {
+        cout << "\n[i] Belum ada data tersimpan. Memulai pengisian data awal...\n";
+        inisialisasiPenghuni();
+    } else {
+        cout << "\n[v] Data sesi sebelumnya berhasil dimuat!\n";
+    }
 
     int stateMenu;
     do {
         tampilkanMenu();
-        cin >> stateMenu;
-        stateMenu = bacaPilihan("Pilih menu (1-10): ", 1, 10);
+        stateMenu = bacaPilihan("Pilih menu (0-10): ", 0, 10);
         
         if (stateMenu == 1) {
-            cout << "Item yang terpilih adalah `Tambah Data Pengeluaran Kos`\n";
-        }
-        else if (stateMenu == 2) {
+            tambahPengeluaran();
+        } else if (stateMenu == 2) {
             lihatSemuaPengeluaran();
-        }
-        else if (stateMenu == 3) {
+        } else if (stateMenu == 3) {
+            editPengeluaran();
+        } else if (stateMenu == 4) {
+            hapusPengeluaran();
+        } else if (stateMenu == 5) {
+            cariNamaBarang();
+        } else if (stateMenu == 6) {
+            filterBerdasarkanKategori();
+        } else if (stateMenu == 7) {
+            filterBerdasarkanPenalang();
+        } else if (stateMenu == 8) {
             tampilkanLaporanSplitBill();
-        }
-        else if (stateMenu == 4) {
+        } else if (stateMenu == 9) {
             prosesPembayaranTagihan();
-        }
-        else if(stateMenu == 5) {
+        } else if (stateMenu == 10) {
+            resetDataKosBaru();
+        } else if (stateMenu == 0) {
             cout << "Keluar Program...\n";
         }
-        else {
-            cout << "Pilih dengan mengetik nomor yang tertera\n";
-        }
-    } while (stateMenu != 5);
+    } while (stateMenu != 0);
 
     return 0;
 }
+
 
 // lagi proses code nya sabar yawww....
 //pengen jadi progammer handal namun enggan ngodingg -imphen
