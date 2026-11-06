@@ -8,12 +8,12 @@
 
 using namespace std;
 
-// Const disini semua
+// Const disini semua yaa
 const int MAX_PENGHUNI  = 100;
 const int MAX_TRANSAKSI = 500;
 const string NAMA_FILE  = "laporan_akhir_kos.txt";
 
-// Variabel global
+// Variabel global disini yaww
 string namaPenghuni[MAX_PENGHUNI];
 int    sudahDibayar[MAX_PENGHUNI];
 int    jumlahPenghuni = 0;
@@ -30,7 +30,7 @@ int bacaPilihan(string pesan, int batasBawah, int batasAtas);
 int bacaNominal(string pesan, int minimal);
 string namaKategori(int kode);
 
-// Utilitas tampilan
+// disini bagian utilitas tampilan
 void cetakGaris(int panjang, char simbol) {
     for (int i = 0; i < panjang; i++) {
         cout << simbol;
@@ -95,9 +95,7 @@ bool muatDataDariTxt() {
 
 
 void tampilkanMenu() {
-    cout << "\n==============================================\n";
-    cout << "   SISTEM PATUNGAN & PENGELUARAN ANAK KOS     \n";
-    cout << "==============================================\n";
+    cetakJudul("MENU UTAMA");
     cout << "  1. Tambah Pengeluaran Baru\n";
     cout << "  2. Lihat Semua Pengeluaran\n";
     cout << "  3. Edit Data Pengeluaran\n";
@@ -109,6 +107,7 @@ void tampilkanMenu() {
     cout << "  9. Bayar / Cicil Tagihan Penghuni\n";
     cout << " 10. Reset Data / Input Ulang Penghuni Baru\n";
     cout << "  0. Keluar Program\n";
+    cetakGaris(65, '-');
 }
 
 void editPengeluaran() {
@@ -116,7 +115,10 @@ void editPengeluaran() {
     if (jumlahTransaksi == 0) return;
 
     int pilih = bacaPilihan("\nMasukkan nomor transaksi yang akan diedit (0 = Batal): ", 0, jumlahTransaksi);
-    if (pilih == 0) return;
+    if (pilih == 0) {
+        cout << "Edit transaksi dibatalkan.\n";
+        return;
+    }
 
     int idx = pilih - 1;
     cout << "\n--- Masukkan Data Baru untuk Transaksi #" << pilih << " ---\n";
@@ -142,7 +144,10 @@ void hapusPengeluaran() {
     if (jumlahTransaksi == 0) return;
 
     int pilih = bacaPilihan("\nMasukkan nomor transaksi yang akan dihapus (0 = Batal): ", 0, jumlahTransaksi);
-    if (pilih == 0) return;
+    if (pilih == 0) {
+        cout << "Penghapusan dibatalkan.\n";
+        return;
+    }
 
     int idx = pilih - 1;
     for (int i = idx; i < jumlahTransaksi - 1; i++) {
@@ -153,11 +158,11 @@ void hapusPengeluaran() {
         nominal[i]     = nominal[i + 1];
     }
     jumlahTransaksi--;
-    cout << "\n[v] Transaksi berhasil dihapus!\n";
+    cout << "\nTransaksi berhasil dihapus! Sisa data: " << jumlahTransaksi << " transaksi.\n";
     simpanLaporanKeTxt();
 }
 
-// Input
+// bagian input
 int bacaPilihan(string pesan, int batasBawah, int batasAtas) {
     int angka;
     cout << pesan;
@@ -184,7 +189,7 @@ int bacaNominal(string pesan, int minimal) {
 }
 
 
-// Kalkulasi
+// bagian kalkulasi
 int hitungTalanganPenghuni(int idx) {
     int totalTalangan = 0;
     for (int i = 0; i < jumlahTransaksi; i++) {
@@ -255,7 +260,7 @@ string statusKelunasan(int idx) {
     return "BELUM LUNAS";
 }
 
-// Tampilan data penghuni
+// ini tampilan data penghuni
 void tampilkanDaftarPenghuni() {
     cetakJudul("DAFTAR PENGHUNI KOS");
     for (int i = 0; i < jumlahPenghuni; i++) {
@@ -267,7 +272,7 @@ void tampilkanDaftarPenghuni() {
 
 void inisialisasiPenghuni() {
     cetakJudul("INISIALISASI DATA PENGHUNI KOS BARU");
-    jumlahPenghuni = bacaPilihan("Masukkan jumlah penghuni kos (1-100): ", 1, MAX_PENGHUNI);
+    jumlahPenghuni = bacaPilihan("Masukkan jumlah penghuni kos: ", 1, MAX_PENGHUNI);
     jumlahTransaksi = 0;
 
     cout << "\nMasukkan nama masing-masing penghuni:\n";
@@ -282,7 +287,10 @@ void inisialisasiPenghuni() {
 
 void cariNamaBarang() {
     cetakJudul("CARI PENGELUARAN BERDASARKAN NAMA BARANG");
-    if (jumlahTransaksi == 0) return;
+    if (jumlahTransaksi == 0) {
+        cout << "Belum ada data transaksi.\n";
+        return;
+    }
 
     string kataKunci;
     cout << "  Masukkan kata kunci nama barang: ";
@@ -295,51 +303,87 @@ void cariNamaBarang() {
     for (int i = 0; i < jumlahTransaksi; i++) {
         if (namaBarang[i].find(kataKunci) != string::npos) {
             cout << "  - [Minggu " << mingguKe[i] << "] " << namaBarang[i]
-                 << " | Rp " << nominal[i] << "\n";
+                 << " | Rp " << nominal[i]
+                 << " (Penalang: " << namaPenghuni[idxPenalang[i]] << ")\n";
             ditemukan++;
             subtotal += nominal[i];
         }
     }
-    if (ditemukan == 0) cout << "  [i] Tidak ditemukan.\n";
-    else cout << "  Ditemukan " << ditemukan << " transaksi | Subtotal: Rp " << subtotal << "\n";
+
+    if (ditemukan == 0) {
+        cout << "Tidak ditemukan barang dengan kata kunci tersebut.\n";
+    } else {
+        cetakGaris(65, '-');
+        cout << "  Ditemukan " << ditemukan << " transaksi | Subtotal: Rp " << subtotal << "\n";
+    }
 }
 
 void filterBerdasarkanKategori() {
     cetakJudul("FILTER PENGELUARAN BERDASARKAN KATEGORI");
-    if (jumlahTransaksi == 0) return;
+    if (jumlahTransaksi == 0) {
+        cout << "Belum ada data transaksi.\n";
+        return;
+    }
 
-    cout << "  1. Kebutuhan Wajib\n  2. Konsumsi Bersama\n  3. Darurat / Lainnya\n";
+    cout << "  1. Kebutuhan Wajib\n";
+    cout << "  2. Konsumsi Bersama\n";
+    cout << "  3. Darurat / Lainnya\n";
     int kodeKat = bacaPilihan("  Pilih Kategori (1-3): ", 1, 3);
 
     cout << "\n--- Daftar Kategori: " << namaKategori(kodeKat) << " ---\n";
     int ditemukan = 0;
     for (int i = 0; i < jumlahTransaksi; i++) {
         if (kategori[i] == kodeKat) {
-            cout << "  - " << namaBarang[i] << " | Rp " << nominal[i] << "\n";
+            cout << "  - " << namaBarang[i] << " (Minggu " << mingguKe[i] << ")"
+                 << " | Rp " << nominal[i]
+                 << " | Penalang: " << namaPenghuni[idxPenalang[i]] << "\n";
             ditemukan++;
         }
     }
-    if (ditemukan == 0) cout << "  [i] Tidak ada transaksi.\n";
+
+    if (ditemukan == 0) {
+        cout << "  [i] Tidak ada transaksi pada kategori ini.\n";
+    } else {
+        cetakGaris(65, '-');
+        cout << "  Total Kategori " << namaKategori(kodeKat) << " : Rp "
+             << hitungTotalPerKategori(kodeKat) << "\n";
+    }
 }
 
 void filterBerdasarkanPenalang() {
     cetakJudul("FILTER PENGELUARAN BERDASARKAN PENALANG DANA");
-    if (jumlahTransaksi == 0) return;
+    if (jumlahTransaksi == 0) {
+        cout << "Belum ada data transaksi.\n";
+        return;
+    }
 
-    for (int i = 0; i < jumlahPenghuni; i++) cout << "  " << (i + 1) << ". " << namaPenghuni[i] << "\n";
+    for (int i = 0; i < jumlahPenghuni; i++) {
+        cout << "  " << (i + 1) << ". " << namaPenghuni[i] << "\n";
+    }
     int pilihOrang = bacaPilihan("  Pilih Nomor Penghuni: ", 1, jumlahPenghuni);
     int idxOrang   = pilihOrang - 1;
 
     cout << "\n--- Riwayat Talangan: " << namaPenghuni[idxOrang] << " ---\n";
+    int ditemukan = 0;
     for (int i = 0; i < jumlahTransaksi; i++) {
         if (idxPenalang[i] == idxOrang) {
-            cout << "  - " << namaBarang[i] << " | Rp " << nominal[i] << "\n";
+            cout << "  - " << namaBarang[i] << " (" << namaKategori(kategori[i]) << ")"
+                 << " | Minggu " << mingguKe[i] << " | Rp " << nominal[i] << "\n";
+            ditemukan++;
         }
+    }
+
+    if (ditemukan == 0) {
+        cout << "Penghuni ini belum pernah menalangi pengeluaran.\n";
+    } else {
+        cetakGaris(65, '-');
+        cout << "  Total Talangan " << namaPenghuni[idxOrang] << " : Rp "
+             << hitungTalanganPenghuni(idxOrang) << "\n";
     }
 }
 
 
-// Utilitas kategori
+// kalau ini utilitas kategori
 string namaKategori(int kode) {
     if (kode == 1) {
         return "Kebutuhan Wajib";
@@ -352,7 +396,7 @@ string namaKategori(int kode) {
 }
 
 void tambahPengeluaran() {
-    cetakJudul("TAMBAH DATA PENGELUARAN KOS");
+    cetakJudul("TAMBAH PENGELUARAN BARU");
 
     if (jumlahTransaksi >= MAX_TRANSAKSI) {
         cout << "  [!] Kapasitas data transaksi sudah penuh!\n";
@@ -406,16 +450,26 @@ void lihatSemuaPengeluaran() {
 }
 
 void tampilkanLaporanSplitBill() {
-    cetakJudul("CEK TAGIHAN & STATUS BAYAR PENGHUNI");
+    cetakJudul("LAPORAN REKAPITULASI & SPLIT BILL KOS");
 
     int total    = hitungTotalPengeluaran();
     int rataRata = hitungTagihanRataRata();
 
     cout << "  Jumlah Penghuni Kos      : " << jumlahPenghuni << " orang\n";
+    cout << "  Jumlah Transaksi         : " << jumlahTransaksi << " transaksi\n";
     cout << "  Total Pengeluaran Kos    : Rp " << total << "\n";
     cout << "  Beban Rata-Rata / Orang  : Rp " << rataRata << "\n";
     cetakGaris(65, '-');
 
+    cout << "  [A] RINCIAN PER KATEGORI:\n";
+    for (int k = 1; k <= 3; k++) {
+        cout << "      " << k << ". " << namaKategori(k)
+             << " (" << hitungItemPerKategori(k) << " item) : Rp "
+             << hitungTotalPerKategori(k) << "\n";
+    }
+    cetakGaris(65, '-');
+
+    cout << "  [B] PERHITUNGAN SPLIT BILL & STATUS PEMBAYARAN:\n";
     for (int i = 0; i < jumlahPenghuni; i++) {
         int talangan      = hitungTalanganPenghuni(i);
         int tagihanBersih = hitungTagihanBersih(i);
@@ -452,7 +506,7 @@ void prosesPembayaranTagihan() {
     int sisa = hitungSisaTagihan(idx);
 
     if (sisa <= 0) {
-        cout << "  [i] " << namaPenghuni[idx] << " sudah LUNAS.\n";
+        cout << "  [i] " << namaPenghuni[idx] << " sudah LUNAS dan tidak memiliki sisa tagihan.\n";
         return;
     }
 
@@ -461,6 +515,8 @@ void prosesPembayaranTagihan() {
 
     sudahDibayar[idx] = sudahDibayar[idx] + bayar;
     cout << "\n[v] Pembayaran Rp " << bayar << " berhasil dicatat!\n";
+    cout << "    Sisa tagihan " << namaPenghuni[idx] << " sekarang: Rp "
+         << hitungSisaTagihan(idx) << " (" << statusKelunasan(idx) << ")\n";
     simpanLaporanKeTxt();
 }
 
@@ -529,24 +585,11 @@ void simpanLaporanKeTxt() {
         fileKeluar << "-----------------------------------------------------------------\n";
     }
 
-    fileKeluar << "\n===DATA_SISTEM===\n";
-    fileKeluar << jumlahPenghuni << "\n";
-    for (int i = 0; i < jumlahPenghuni; i++) {
-        fileKeluar << namaPenghuni[i] << "\n";
-        fileKeluar << sudahDibayar[i] << "\n";
-    }
-    fileKeluar << jumlahTransaksi << "\n";
-    for (int i = 0; i < jumlahTransaksi; i++) {
-        fileKeluar << namaBarang[i] << "\n";
-        fileKeluar << mingguKe[i] << " " << kategori[i] << " " << idxPenalang[i] << " " << nominal[i] << "\n";
-    }
-
-    fileKeluar.close();
-    cout << " Perubahan otomatis tersimpan ke \"" << NAMA_FILE << "\".\n";
 }
 
 void resetDataKosBaru() {
     cetakJudul("RESET DATA & MULAI KOS BARU");
+    cout << "  [!] Peringatan: Seluruh data penghuni & transaksi lama akan dihapus.\n";
     int yakin = bacaPilihan("  Apakah Anda yakin ingin mereset data? (1 = Ya, 0 = Batal): ", 0, 1);
     if (yakin == 1) {
         inisialisasiPenghuni();
@@ -556,13 +599,17 @@ void resetDataKosBaru() {
 }
 
 int main() {
-    cetakJudul("SISTEM PEMBAGIAN TAGIHAN & PENGELUARAN ANAK KOS (C++)");
-    
-    if (!muatDataDariTxt()) {
-        cout << "\n[i] Belum ada data tersimpan. Memulai pengisian data awal...\n";
-        inisialisasiPenghuni();
+    cetakGaris(65, '=');
+    cout << "      SISTEM PEMBAGIAN TAGIHAN & PENGELUARAN ANAK KOS      \n";
+    cetakGaris(65, '=');
+
+    if (muatDataDariTxt()) {
+        cout << "\n[v] Data sesi sebelumnya ditemukan di \"" << NAMA_FILE << "\"!\n";
+        cout << "[v] Berhasil memuat " << jumlahPenghuni << " penghuni dan "
+             << jumlahTransaksi << " transaksi. Melanjutkan program...\n";
     } else {
-        cout << "\n[v] Data sesi sebelumnya berhasil dimuat!\n";
+        cout << "\nBelum ada data tersimpan. Silahkan melakukan pengisian data penghuni awal...\n";
+        inisialisasiPenghuni();
     }
 
     int stateMenu;
@@ -600,5 +647,6 @@ int main() {
 }
 
 
-// lagi proses code nya sabar yawww....
-//pengen jadi progammer handal namun enggan ngodingg -imphen
+// harusnya selesai sih, huft...
+// pengen jadi programmer handal namun enggan ngoding -community imphen
+// BISMILAH NILAI SEMPURNAAAAAAAAAAAAAAAAA #ASDOSPPBAIKHATI
