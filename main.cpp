@@ -260,7 +260,7 @@ string statusKelunasan(int idx) {
     return "BELUM LUNAS";
 }
 
-// ini tampilan data penghuni
+// Tampilan data penghuni
 void tampilkanDaftarPenghuni() {
     cetakJudul("DAFTAR PENGHUNI KOS");
     for (int i = 0; i < jumlahPenghuni; i++) {
@@ -585,6 +585,20 @@ void simpanLaporanKeTxt() {
         fileKeluar << "-----------------------------------------------------------------\n";
     }
 
+    fileKeluar << "\n===DATA_SISTEM===\n";
+    fileKeluar << jumlahPenghuni << "\n";
+    for (int i = 0; i < jumlahPenghuni; i++) {
+        fileKeluar << namaPenghuni[i] << "\n";
+        fileKeluar << sudahDibayar[i] << "\n";
+    }
+    fileKeluar << jumlahTransaksi << "\n";
+    for (int i = 0; i < jumlahTransaksi; i++) {
+        fileKeluar << namaBarang[i] << "\n";
+        fileKeluar << mingguKe[i] << " " << kategori[i] << " " << idxPenalang[i] << " " << nominal[i] << "\n";
+    }
+
+    fileKeluar.close();
+    cout << " Perubahan otomatis tersimpan ke \"" << NAMA_FILE << "\".\n";
 }
 
 void resetDataKosBaru() {
